@@ -29,7 +29,7 @@
 
 .catalog-controls {
   display: grid;
-  grid-template-columns: minmax(16rem, 2fr) repeat(3, minmax(9rem, 1fr));
+  grid-template-columns: minmax(16rem, 2fr) repeat(4, minmax(9rem, 1fr));
   gap: 0.8rem;
   padding: 1rem;
   border: 1px solid var(--catalog-border);
@@ -199,6 +199,56 @@
   font-size: var(--sl-text-xs);
 }
 
+.caas-relations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.8rem;
+  margin: 0 0 1.5rem;
+}
+
+.caas-relation {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--catalog-border);
+  border-radius: 0.7rem;
+  background: var(--catalog-surface);
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-sm);
+}
+
+.caas-relation__title {
+  margin: 0 0 0.4rem;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.caas-relation > p:not(.caas-relation__title) {
+  margin: 0.35rem 0 0.65rem;
+}
+
+.caas-relation nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.caas-relation ul {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.caas-relation li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
 .visually-hidden {
   position: absolute !important;
   width: 1px !important;
@@ -213,7 +263,7 @@
 
 @media (max-width: 72rem) {
   .catalog-controls {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .catalog-controls .search-field {

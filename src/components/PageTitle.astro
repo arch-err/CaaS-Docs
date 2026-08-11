@@ -1,33 +1,105 @@
 ---
 import Default from '@astrojs/starlight/components/PageTitle.astro';
+import { getCollection } from 'astro:content';
 
-const service = Astro.locals.starlightRoute.entry.data.service;
+const caas = Astro.locals.starlightRoute.entry.data.caas;
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const containers =
+  caas?.type === 'chart'
+    ? (await getCollection('docs'))
+        .filter((entry) => entry.data.caas?.type === 'container')
+        .filter((entry) =>
+          caas.chart.containers.includes(
+            entry.id
+              .replace(/\/index$/, '')
+              .split('/')
+              .at(-1)!,
+          ),
+        )
+        .map((entry) => ({
+          slug: entry.id
+            .replace(/\/index$/, '')
+            .split('/')
+            .at(-1)!,
+          title: entry.data.title,
+          href: `${basePath}/${entry.id.replace(/\/index$/, '')}/`,
+        }))
+    : [];
 ---
 
 <Default><slot /></Default>
 
 {
-  service && (
-    <div class="service-metadata" aria-label="Service metadata">
-      <span data-pagefind-filter={`kind:${service.kind}`}>{service.kind}</span>
-      <span data-pagefind-filter={`lifecycle:${service.lifecycle}`}>
-        {service.lifecycle}
-      </span>
-      <span data-pagefind-filter={`stateful:${String(service.stateful)}`}>
-        {service.stateful ? 'stateful' : 'stateless'}
-      </span>
-      {service.architectures.map((architecture) => (
-        <span data-pagefind-filter={`architecture:${architecture}`}>
-          {architecture}
+  caas && (
+    <>
+      <div class="service-metadata" aria-label="CaaS metadata">
+        <span data-pagefind-filter={`type:${caas.type}`}>{caas.type}</span>
+        <span data-pagefind-filter={`lifecycle:${caas.lifecycle}`}>
+          {caas.lifecycle}
         </span>
-      ))}
-      <span class="visually-hidden" data-pagefind-filter="type:service">
-        service
-      </span>
-      <span class="visually-hidden" data-pagefind-weight="8">
-        Aliases: {service.aliases.join(', ')}. Capabilities:{' '}
-        {service.capabilities.join(', ')}.
-      </span>
-    </div>
+        {caas.type === 'container' && (
+          <span data-pagefind-filter={`category:${caas.container.category}`}>
+            {caas.container.category}
+          </span>
+        )}
+        {caas.type === 'container' && (
+          <span
+            data-pagefind-filter={`stateful:${String(caas.container.stateful)}`}
+          >
+            {caas.container.stateful ? 'stateful' : 'stateless'}
+          </span>
+        )}
+        {caas.type === 'container' &&
+          caas.container.architectures.map((architecture) => (
+            <span data-pagefind-filter={`architecture:${architecture}`}>
+              {architecture}
+            </span>
+          ))}
+        {caas.type === 'chart' && (
+          <span>{caas.chart.versions.length} chart version(s)</span>
+        )}
+        <span class="visually-hidden" data-pagefind-filter="entry:caas">
+          CaaS entry
+        </span>
+        <span class="visually-hidden" data-pagefind-weight="8">
+          Aliases: {caas.aliases.join(', ')}. Capabilities:{' '}
+          {caas.capabilities.join(', ')}. Upstream: {caas.upstream.name}.{' '}
+          {caas.upstream.description}.
+          {caas.type === 'chart' &&
+            ` Containers: ${caas.chart.containers.join(', ')}.`}
+        </span>
+      </div>
+
+      <div class="caas-relations">
+        <section class="caas-relation" aria-labelledby="upstream-title">
+          <p class="caas-relation__title" id="upstream-title">
+            Upstream
+          </p>
+          <strong>{caas.upstream.name}</strong>
+          <p>{caas.upstream.description}</p>
+          <nav aria-label={`${caas.upstream.name} upstream links`}>
+            <a href={caas.upstream.homepage}>Homepage</a>
+            <a href={caas.upstream.documentation}>Documentation</a>
+            {caas.upstream.source && <a href={caas.upstream.source}>Source</a>}
+          </nav>
+        </section>
+
+        {caas.type === 'chart' && (
+          <section class="caas-relation" aria-labelledby="containers-title">
+            <p class="caas-relation__title" id="containers-title">
+              CaaS containers
+            </p>
+            <ul>
+              {containers.map((container) => (
+                <li>
+                  <a href={container.href}>{container.title}</a>
+                  <code>{container.slug}</code>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    </>
   )
 }

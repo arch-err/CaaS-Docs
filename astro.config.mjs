@@ -11,7 +11,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'CaaS Docs',
-      description: 'Find and consume supported container services.',
+      description: 'Find and consume supported containers and charts.',
       favicon: '/favicon.svg',
       lastUpdated: true,
       editLink: {
@@ -26,12 +26,12 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: 'Services',
+          label: 'CaaS catalog',
           items: [{ autogenerate: { directory: 'services' } }],
         },
         {
           label: 'Contributing',
-          items: [{ label: 'Authoring services', slug: 'authoring' }],
+          items: [{ label: 'Authoring CaaS entries', slug: 'authoring' }],
         },
       ],
       components: {

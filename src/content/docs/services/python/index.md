@@ -2,8 +2,8 @@
 title: Python
 description:
   Maintained Python runtime image for web services, workers, and automation.
-service:
-  kind: runtime
+caas:
+  type: container
   aliases:
     - python3
     - uv
@@ -13,18 +13,27 @@ service:
     - Python runtime
     - UV package management
     - non-root execution
-  protocols:
-    - HTTP
-  architectures:
-    - amd64
-    - arm64
-  supportedVersions:
-    - '3.13'
-    - '3.14'
-  stateful: false
   lifecycle: stable
   owner: Platform Engineering
-  containerImage: registry.example.invalid/caas/python
+  upstream:
+    name: Python
+    description:
+      General-purpose programming language maintained by the Python community.
+    homepage: https://www.python.org/
+    documentation: https://docs.python.org/3/
+    source: https://github.com/python/cpython
+  container:
+    category: runtime
+    image: registry.example.invalid/caas/python
+    versions:
+      - '3.13'
+      - '3.14'
+    architectures:
+      - amd64
+      - arm64
+    protocols:
+      - HTTP
+    stateful: false
 ---
 
 ## Use this when

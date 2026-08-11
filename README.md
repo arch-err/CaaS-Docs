@@ -69,7 +69,7 @@ Remove the cluster with `just kind-down`.
 ## Repository layout
 
 ```text
-src/content/docs/services/   Service Markdown and colocated assets
+src/content/docs/services/   Container/chart Markdown and colocated assets
 src/components/              Catalog and documentation UI
 deploy/helm/caas-docs/       git-sync and nginx Helm chart
 kind/                        Local cluster configuration

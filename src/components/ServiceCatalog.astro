@@ -1,31 +1,37 @@
 ---
 import { getCollection } from 'astro:content';
 
-const services = (await getCollection('docs'))
-  .filter((entry) => entry.data.service)
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const entries = (await getCollection('docs'))
+  .filter((entry) => entry.data.caas)
   .map((entry) => {
-    const service = entry.data.service!;
+    const caas = entry.data.caas!;
     const route = entry.id.replace(/\/index$/, '');
 
     return {
       title: entry.data.title,
       description: entry.data.description,
-      href: `/${route}/`,
-      ...service,
+      href: `${basePath}/${route}/`,
+      ...caas,
     };
   })
   .sort((left, right) => left.title.localeCompare(right.title));
 
-const kinds = [...new Set(services.map((service) => service.kind))].sort();
-const lifecycles = [
-  ...new Set(services.map((service) => service.lifecycle)),
+const types = [...new Set(entries.map((entry) => entry.type))].sort();
+const categories = [
+  ...new Set(
+    entries.flatMap((entry) =>
+      entry.type === 'container' ? [entry.container.category] : [],
+    ),
+  ),
 ].sort();
+const lifecycles = [...new Set(entries.map((entry) => entry.lifecycle))].sort();
 ---
 
 <section class="catalog" data-service-catalog>
-  <form class="catalog-controls" aria-label="Filter the service catalog">
+  <form class="catalog-controls" aria-label="Filter the CaaS catalog">
     <label class="search-field">
-      <span>Find a service</span>
+      <span>Find a CaaS entry</span>
       <input
         type="search"
         name="q"
@@ -36,10 +42,22 @@ const lifecycles = [
     </label>
 
     <label>
-      <span>Kind</span>
-      <select name="kind" data-kind>
-        <option value="">All kinds</option>
-        {kinds.map((kind) => <option value={kind}>{kind}</option>)}
+      <span>Type</span>
+      <select name="type" data-type>
+        <option value="">All types</option>
+        {types.map((type) => <option value={type}>{type}</option>)}
+      </select>
+    </label>
+
+    <label>
+      <span>Container category</span>
+      <select name="category" data-category>
+        <option value="">All categories</option>
+        {
+          categories.map((category) => (
+            <option value={category}>{category}</option>
+          ))
+        }
       </select>
     </label>
 
@@ -66,48 +84,88 @@ const lifecycles = [
   </form>
 
   <div class="catalog-summary" aria-live="polite">
-    <span data-result-count>{services.length} services</span>
+    <span data-result-count>{entries.length} entries</span>
     <button type="button" class="reset-button" data-reset>Reset filters</button>
   </div>
 
   <div class="service-grid" data-service-grid>
     {
-      services.map((service) => (
+      entries.map((entry) => (
         <article
           class="service-card"
           data-service-card
-          data-kind={service.kind}
-          data-lifecycle={service.lifecycle}
-          data-stateful={String(service.stateful)}
+          data-type={entry.type}
+          data-category={
+            entry.type === 'container' ? entry.container.category : undefined
+          }
+          data-lifecycle={entry.lifecycle}
+          data-stateful={
+            entry.type === 'container'
+              ? String(entry.container.stateful)
+              : undefined
+          }
           data-search-text={[
-            service.title,
-            service.description,
-            ...service.aliases,
-            ...service.capabilities,
-            ...service.protocols,
-            ...service.supportedVersions,
+            entry.title,
+            entry.description,
+            entry.type,
+            ...entry.aliases,
+            ...entry.capabilities,
+            entry.upstream.name,
+            entry.upstream.description,
+            ...(entry.type === 'container'
+              ? [
+                  entry.container.category,
+                  entry.container.image,
+                  ...entry.container.protocols,
+                  ...entry.container.versions,
+                ]
+              : [
+                  entry.chart.name,
+                  entry.chart.repository,
+                  ...entry.chart.versions,
+                  ...entry.chart.containers,
+                ]),
           ]
             .join(' ')
             .toLocaleLowerCase()}
         >
           <div class="service-card__header">
-            <span class="service-kind">{service.kind}</span>
-            <span class={`lifecycle lifecycle--${service.lifecycle}`}>
-              {service.lifecycle}
+            <span class="service-kind">
+              {entry.type}
+              {entry.type === 'container' && ` · ${entry.container.category}`}
+            </span>
+            <span class={`lifecycle lifecycle--${entry.lifecycle}`}>
+              {entry.lifecycle}
             </span>
           </div>
           <h2>
-            <a href={service.href}>{service.title}</a>
+            <a href={entry.href}>{entry.title}</a>
           </h2>
-          <p>{service.description}</p>
+          <p>{entry.description}</p>
           <ul class="service-capabilities" aria-label="Capabilities">
-            {service.capabilities.slice(0, 3).map((item) => (
+            {entry.capabilities.slice(0, 3).map((item) => (
               <li>{item}</li>
             ))}
           </ul>
           <div class="service-card__footer">
-            <span>{service.stateful ? 'Stateful' : 'Stateless'}</span>
-            <span>{service.architectures.join(' · ')}</span>
+            {entry.type === 'container' ? (
+              <>
+                <span>
+                  {entry.container.stateful ? 'Stateful' : 'Stateless'}
+                </span>
+                <span>{entry.container.architectures.join(' · ')}</span>
+              </>
+            ) : (
+              <>
+                <span>
+                  {entry.chart.containers.length}{' '}
+                  {entry.chart.containers.length === 1
+                    ? 'container'
+                    : 'containers'}
+                </span>
+                <span>{entry.chart.versions.join(' · ')}</span>
+              </>
+            )}
           </div>
         </article>
       ))
@@ -115,7 +173,7 @@ const lifecycles = [
   </div>
 
   <div class="empty-state" data-empty-state hidden>
-    <h2>No service matched</h2>
+    <h2>No CaaS entry matched</h2>
     <p>Try a broader term or reset one of the filters.</p>
   </div>
 </section>
@@ -125,7 +183,9 @@ const lifecycles = [
 
   if (catalog) {
     const search = catalog.querySelector<HTMLInputElement>('[data-search]')!;
-    const kind = catalog.querySelector<HTMLSelectElement>('[data-kind]')!;
+    const type = catalog.querySelector<HTMLSelectElement>('[data-type]')!;
+    const category =
+      catalog.querySelector<HTMLSelectElement>('[data-category]')!;
     const lifecycle =
       catalog.querySelector<HTMLSelectElement>('[data-lifecycle]')!;
     const stateful =
@@ -139,7 +199,8 @@ const lifecycles = [
 
     const params = new URLSearchParams(window.location.search);
     search.value = params.get('q') ?? '';
-    kind.value = params.get('kind') ?? '';
+    type.value = params.get('type') ?? '';
+    category.value = params.get('category') ?? '';
     lifecycle.value = params.get('lifecycle') ?? '';
     stateful.value = params.get('stateful') ?? '';
 
@@ -155,24 +216,31 @@ const lifecycles = [
         const matchesText = terms.every((term) =>
           card.dataset.searchText?.includes(term),
         );
-        const matchesKind = !kind.value || card.dataset.kind === kind.value;
+        const matchesType = !type.value || card.dataset.type === type.value;
+        const matchesCategory =
+          !category.value || card.dataset.category === category.value;
         const matchesLifecycle =
           !lifecycle.value || card.dataset.lifecycle === lifecycle.value;
         const matchesState =
           !stateful.value || card.dataset.stateful === stateful.value;
         const matches =
-          matchesText && matchesKind && matchesLifecycle && matchesState;
+          matchesText &&
+          matchesType &&
+          matchesCategory &&
+          matchesLifecycle &&
+          matchesState;
 
         card.hidden = !matches;
         if (matches) visible += 1;
       }
 
-      count.textContent = `${visible} ${visible === 1 ? 'service' : 'services'}`;
+      count.textContent = `${visible} ${visible === 1 ? 'entry' : 'entries'}`;
       empty.hidden = visible !== 0;
 
       const nextParams = new URLSearchParams();
       if (search.value.trim()) nextParams.set('q', search.value.trim());
-      if (kind.value) nextParams.set('kind', kind.value);
+      if (type.value) nextParams.set('type', type.value);
+      if (category.value) nextParams.set('category', category.value);
       if (lifecycle.value) nextParams.set('lifecycle', lifecycle.value);
       if (stateful.value) nextParams.set('stateful', stateful.value);
       const query = nextParams.toString();
@@ -183,7 +251,8 @@ const lifecycles = [
     catalog.addEventListener('change', update);
     reset.addEventListener('click', () => {
       search.value = '';
-      kind.value = '';
+      type.value = '';
+      category.value = '';
       lifecycle.value = '';
       stateful.value = '';
       update();

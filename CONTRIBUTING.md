@@ -5,7 +5,7 @@ operational, and easy to verify.
 
 ## Workflow
 
-1. Create or update a service under `src/content/docs/services/`.
+1. Create or update a CaaS entry under `src/content/docs/services/`.
 2. Run `just format`.
 3. Run `just check`.
 4. Open a pull request against `main`.

@@ -3,8 +3,8 @@ title: Redis
 description:
   Managed in-memory datastore for caches, queues, and short-lived coordination
   data.
-service:
-  kind: datastore
+caas:
+  type: container
   aliases:
     - cache
     - key-value
@@ -14,18 +14,28 @@ service:
     - persistence
     - replication
     - metrics
-  protocols:
-    - RESP
-    - TCP
-  architectures:
-    - amd64
-    - arm64
-  supportedVersions:
-    - '8.6'
-  stateful: true
   lifecycle: stable
   owner: Platform Engineering
-  containerImage: registry.example.invalid/caas/redis
+  upstream:
+    name: Redis
+    description:
+      In-memory data store for caching, streaming, messaging, and search
+      workloads.
+    homepage: https://redis.io/
+    documentation: https://redis.io/docs/latest/
+    source: https://github.com/redis/redis
+  container:
+    category: datastore
+    image: registry.example.invalid/caas/redis
+    versions:
+      - '8.6'
+    architectures:
+      - amd64
+      - arm64
+    protocols:
+      - RESP
+      - TCP
+    stateful: true
 ---
 
 ## Use this when

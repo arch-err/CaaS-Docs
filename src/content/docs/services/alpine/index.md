@@ -2,8 +2,8 @@
 title: Alpine Linux
 description:
   Minimal Linux base image for small utilities and tightly scoped workloads.
-service:
-  kind: base-image
+caas:
+  type: container
   aliases:
     - alpine
     - minimal linux
@@ -12,16 +12,26 @@ service:
     - small image footprint
     - apk packages
     - shell utilities
-  protocols: []
-  architectures:
-    - amd64
-    - arm64
-  supportedVersions:
-    - '3.23'
-  stateful: false
   lifecycle: stable
   owner: Platform Engineering
-  containerImage: registry.example.invalid/caas/alpine
+  upstream:
+    name: Alpine Linux
+    description:
+      Security-oriented, lightweight Linux distribution based on musl and
+      BusyBox.
+    homepage: https://www.alpinelinux.org/
+    documentation: https://docs.alpinelinux.org/
+    source: https://gitlab.alpinelinux.org/alpine/aports
+  container:
+    category: base-image
+    image: registry.example.invalid/caas/alpine
+    versions:
+      - '3.23'
+    architectures:
+      - amd64
+      - arm64
+    protocols: []
+    stateful: false
 ---
 
 ## Use this when
