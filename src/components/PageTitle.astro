@@ -1,0 +1,33 @@
+---
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+
+const service = Astro.locals.starlightRoute.entry.data.service;
+---
+
+<Default><slot /></Default>
+
+{
+  service && (
+    <div class="service-metadata" aria-label="Service metadata">
+      <span data-pagefind-filter={`kind:${service.kind}`}>{service.kind}</span>
+      <span data-pagefind-filter={`lifecycle:${service.lifecycle}`}>
+        {service.lifecycle}
+      </span>
+      <span data-pagefind-filter={`stateful:${String(service.stateful)}`}>
+        {service.stateful ? 'stateful' : 'stateless'}
+      </span>
+      {service.architectures.map((architecture) => (
+        <span data-pagefind-filter={`architecture:${architecture}`}>
+          {architecture}
+        </span>
+      ))}
+      <span class="visually-hidden" data-pagefind-filter="type:service">
+        service
+      </span>
+      <span class="visually-hidden" data-pagefind-weight="8">
+        Aliases: {service.aliases.join(', ')}. Capabilities:{' '}
+        {service.capabilities.join(', ')}.
+      </span>
+    </div>
+  )
+}

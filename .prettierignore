@@ -1,0 +1,7 @@
+.astro/
+dist/
+node_modules/
+bun.lock
+deploy/helm/caas-docs/templates/
+flake.lock
+

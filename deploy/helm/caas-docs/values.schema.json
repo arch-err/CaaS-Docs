@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["replicaCount", "gitSync", "nginx", "service", "ingress"],
+  "properties": {
+    "replicaCount": { "type": "integer", "minimum": 1 },
+    "gitSync": {
+      "type": "object",
+      "required": ["image", "repo", "ref", "period", "depth", "maxFailures"],
+      "properties": {
+        "repo": { "type": "string", "pattern": "^https://" },
+        "ref": { "type": "string", "minLength": 1 },
+        "period": { "type": "string", "pattern": "^[0-9]+(ms|s|m)$" },
+        "depth": { "type": "integer", "minimum": 1 },
+        "maxFailures": { "type": "integer" },
+        "staleWorktreeTimeout": { "type": "string" },
+        "image": { "$ref": "#/$defs/image" }
+      }
+    },
+    "nginx": {
+      "type": "object",
+      "required": ["image"],
+      "properties": { "image": { "$ref": "#/$defs/image" } }
+    },
+    "service": {
+      "type": "object",
+      "required": ["type", "port"],
+      "properties": {
+        "type": { "type": "string" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "required": ["enabled", "host", "path", "pathType"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "className": { "type": "string" },
+        "annotations": { "type": "object" },
+        "host": { "type": "string", "minLength": 1 },
+        "path": { "type": "string" },
+        "pathType": { "enum": ["Exact", "Prefix", "ImplementationSpecific"] }
+      }
+    }
+  },
+  "$defs": {
+    "image": {
+      "type": "object",
+      "required": ["repository", "tag", "pullPolicy"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "tag": { "type": "string", "minLength": 1 },
+        "pullPolicy": { "enum": ["Always", "IfNotPresent", "Never"] }
+      }
+    }
+  }
+}

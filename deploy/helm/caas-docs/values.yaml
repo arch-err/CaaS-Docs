@@ -1,0 +1,65 @@
+replicaCount: 1
+
+gitSync:
+  image:
+    repository: registry.k8s.io/git-sync/git-sync
+    tag: v4.7.1
+    pullPolicy: IfNotPresent
+  repo: https://github.com/arch-err/CaaS-Docs-POC.git
+  ref: deploy
+  period: 2s
+  depth: 1
+  maxFailures: -1
+  staleWorktreeTimeout: 30s
+
+nginx:
+  image:
+    repository: nginxinc/nginx-unprivileged
+    tag: 1.29.4-alpine
+    pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  host: caas-docs.local
+  path: /
+  pathType: Prefix
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 101
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+resources:
+  gitSync:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 96Mi
+  nginx:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      memory: 64Mi
+
+storage:
+  sizeLimit: 256Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

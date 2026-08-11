@@ -1,0 +1,195 @@
+---
+import { getCollection } from 'astro:content';
+
+const services = (await getCollection('docs'))
+  .filter((entry) => entry.data.service)
+  .map((entry) => {
+    const service = entry.data.service!;
+    const route = entry.id.replace(/\/index$/, '');
+
+    return {
+      title: entry.data.title,
+      description: entry.data.description,
+      href: `/${route}/`,
+      ...service,
+    };
+  })
+  .sort((left, right) => left.title.localeCompare(right.title));
+
+const kinds = [...new Set(services.map((service) => service.kind))].sort();
+const lifecycles = [
+  ...new Set(services.map((service) => service.lifecycle)),
+].sort();
+---
+
+<section class="catalog" data-service-catalog>
+  <form class="catalog-controls" aria-label="Filter the service catalog">
+    <label class="search-field">
+      <span>Find a service</span>
+      <input
+        type="search"
+        name="q"
+        placeholder="Try “cache”, “python”, or “minimal image”"
+        autocomplete="off"
+        data-search
+      />
+    </label>
+
+    <label>
+      <span>Kind</span>
+      <select name="kind" data-kind>
+        <option value="">All kinds</option>
+        {kinds.map((kind) => <option value={kind}>{kind}</option>)}
+      </select>
+    </label>
+
+    <label>
+      <span>Lifecycle</span>
+      <select name="lifecycle" data-lifecycle>
+        <option value="">All lifecycles</option>
+        {
+          lifecycles.map((lifecycle) => (
+            <option value={lifecycle}>{lifecycle}</option>
+          ))
+        }
+      </select>
+    </label>
+
+    <label>
+      <span>Storage</span>
+      <select name="stateful" data-stateful>
+        <option value="">Any storage model</option>
+        <option value="false">Stateless</option>
+        <option value="true">Stateful</option>
+      </select>
+    </label>
+  </form>
+
+  <div class="catalog-summary" aria-live="polite">
+    <span data-result-count>{services.length} services</span>
+    <button type="button" class="reset-button" data-reset>Reset filters</button>
+  </div>
+
+  <div class="service-grid" data-service-grid>
+    {
+      services.map((service) => (
+        <article
+          class="service-card"
+          data-service-card
+          data-kind={service.kind}
+          data-lifecycle={service.lifecycle}
+          data-stateful={String(service.stateful)}
+          data-search-text={[
+            service.title,
+            service.description,
+            ...service.aliases,
+            ...service.capabilities,
+            ...service.protocols,
+            ...service.supportedVersions,
+          ]
+            .join(' ')
+            .toLocaleLowerCase()}
+        >
+          <div class="service-card__header">
+            <span class="service-kind">{service.kind}</span>
+            <span class={`lifecycle lifecycle--${service.lifecycle}`}>
+              {service.lifecycle}
+            </span>
+          </div>
+          <h2>
+            <a href={service.href}>{service.title}</a>
+          </h2>
+          <p>{service.description}</p>
+          <ul class="service-capabilities" aria-label="Capabilities">
+            {service.capabilities.slice(0, 3).map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+          <div class="service-card__footer">
+            <span>{service.stateful ? 'Stateful' : 'Stateless'}</span>
+            <span>{service.architectures.join(' · ')}</span>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <div class="empty-state" data-empty-state hidden>
+    <h2>No service matched</h2>
+    <p>Try a broader term or reset one of the filters.</p>
+  </div>
+</section>
+
+<script>
+  const catalog = document.querySelector<HTMLElement>('[data-service-catalog]');
+
+  if (catalog) {
+    const search = catalog.querySelector<HTMLInputElement>('[data-search]')!;
+    const kind = catalog.querySelector<HTMLSelectElement>('[data-kind]')!;
+    const lifecycle =
+      catalog.querySelector<HTMLSelectElement>('[data-lifecycle]')!;
+    const stateful =
+      catalog.querySelector<HTMLSelectElement>('[data-stateful]')!;
+    const cards = [
+      ...catalog.querySelectorAll<HTMLElement>('[data-service-card]'),
+    ];
+    const count = catalog.querySelector<HTMLElement>('[data-result-count]')!;
+    const empty = catalog.querySelector<HTMLElement>('[data-empty-state]')!;
+    const reset = catalog.querySelector<HTMLButtonElement>('[data-reset]')!;
+
+    const params = new URLSearchParams(window.location.search);
+    search.value = params.get('q') ?? '';
+    kind.value = params.get('kind') ?? '';
+    lifecycle.value = params.get('lifecycle') ?? '';
+    stateful.value = params.get('stateful') ?? '';
+
+    const update = () => {
+      const terms = search.value
+        .trim()
+        .toLocaleLowerCase()
+        .split(/\s+/)
+        .filter(Boolean);
+      let visible = 0;
+
+      for (const card of cards) {
+        const matchesText = terms.every((term) =>
+          card.dataset.searchText?.includes(term),
+        );
+        const matchesKind = !kind.value || card.dataset.kind === kind.value;
+        const matchesLifecycle =
+          !lifecycle.value || card.dataset.lifecycle === lifecycle.value;
+        const matchesState =
+          !stateful.value || card.dataset.stateful === stateful.value;
+        const matches =
+          matchesText && matchesKind && matchesLifecycle && matchesState;
+
+        card.hidden = !matches;
+        if (matches) visible += 1;
+      }
+
+      count.textContent = `${visible} ${visible === 1 ? 'service' : 'services'}`;
+      empty.hidden = visible !== 0;
+
+      const nextParams = new URLSearchParams();
+      if (search.value.trim()) nextParams.set('q', search.value.trim());
+      if (kind.value) nextParams.set('kind', kind.value);
+      if (lifecycle.value) nextParams.set('lifecycle', lifecycle.value);
+      if (stateful.value) nextParams.set('stateful', stateful.value);
+      const query = nextParams.toString();
+      history.replaceState(null, '', query ? `?${query}` : location.pathname);
+    };
+
+    catalog.addEventListener('input', update);
+    catalog.addEventListener('change', update);
+    reset.addEventListener('click', () => {
+      search.value = '';
+      kind.value = '';
+      lifecycle.value = '';
+      stateful.value = '';
+      update();
+      search.focus();
+    });
+
+    update();
+  }
+</script>

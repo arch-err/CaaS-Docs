@@ -1,0 +1,7 @@
+apiVersion: v2
+name: caas-docs
+description: Hot-synchronized static CaaS documentation site
+type: application
+version: 0.1.0
+appVersion: 'poc'
+icon: https://raw.githubusercontent.com/arch-err/CaaS-Docs-POC/main/public/favicon.svg

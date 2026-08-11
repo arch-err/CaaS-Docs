@@ -1,0 +1,12 @@
+export default {
+  config: {
+    default: true,
+    MD013: false,
+    MD024: false,
+    MD033: false,
+    MD041: false,
+  },
+  gitignore: true,
+  globs: ['**/*.md'],
+  ignores: ['node_modules/**', 'dist/**', '.astro/**'],
+};

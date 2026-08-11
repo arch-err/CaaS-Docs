@@ -1,0 +1,6 @@
+The documentation site is available through:
+
+  http://{{ .Values.ingress.host }}
+
+git-sync follows {{ .Values.gitSync.repo }} at ref {{ .Values.gitSync.ref }}.
+
