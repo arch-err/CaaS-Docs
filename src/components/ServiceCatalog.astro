@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import CaasLogo from './CaasLogo.astro';
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 const entries = (await getCollection('docs'))
@@ -9,6 +10,7 @@ const entries = (await getCollection('docs'))
     const route = entry.id.replace(/\/index$/, '');
 
     return {
+      slug: route.split('/').at(-1)!,
       title: entry.data.title,
       description: entry.data.description,
       href: `${basePath}/${route}/`,
@@ -129,14 +131,17 @@ const lifecycles = [...new Set(entries.map((entry) => entry.lifecycle))].sort();
             .join(' ')
             .toLocaleLowerCase()}
         >
-          <div class="service-card__header">
-            <span class="service-kind">
-              {entry.type}
-              {entry.type === 'container' && ` · ${entry.container.category}`}
-            </span>
-            <span class={`lifecycle lifecycle--${entry.lifecycle}`}>
-              {entry.lifecycle}
-            </span>
+          <div class="service-card__top">
+            <CaasLogo slug={entry.slug} title={entry.title} type={entry.type} />
+            <div class="service-card__header">
+              <span class="service-kind">
+                {entry.type}
+                {entry.type === 'container' && ` · ${entry.container.category}`}
+              </span>
+              <span class={`lifecycle lifecycle--${entry.lifecycle}`}>
+                {entry.lifecycle}
+              </span>
+            </div>
           </div>
           <h2>
             <a href={entry.href}>{entry.title}</a>

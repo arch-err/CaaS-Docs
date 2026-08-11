@@ -121,6 +121,18 @@
   font-size: var(--sl-text-xs);
 }
 
+.service-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.service-card__header {
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
 .service-kind,
 .lifecycle,
 .service-metadata > span {
@@ -197,6 +209,22 @@
   margin: 0.8rem 0 1rem;
   color: var(--sl-color-gray-2);
   font-size: var(--sl-text-xs);
+}
+
+.caas-overview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 1.25rem;
+  margin: 0.8rem 0 1.5rem;
+}
+
+.caas-overview .service-metadata {
+  margin-top: 0;
+}
+
+.caas-overview__content {
+  min-width: 0;
 }
 
 .caas-relations {
@@ -278,5 +306,9 @@
 
   .catalog-controls .search-field {
     grid-column: auto;
+  }
+
+  .caas-overview {
+    grid-template-columns: 1fr;
   }
 }

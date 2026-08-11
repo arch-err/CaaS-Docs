@@ -87,6 +87,22 @@ instead require `Installation` and `Values`.
 Additional sections are welcome when they answer an entry-specific operational
 question.
 
+## Logo
+
+Place one logo beside the document using one of these exact names:
+
+- `logo.svg`
+- `logo.png`
+- `logo.jpg`
+
+SVG is preferred for crisp rendering. Use a roughly square canvas and keep the
+important artwork away from the bottom-right corner. The site overlays a small
+container or Helm badge there automatically; do not bake the type marker into
+the source logo.
+
+When no supported logo file exists, the site renders a neutral monogram logo.
+This lets a new entry build immediately while its approved artwork is prepared.
+
 ## Images and secrets
 
 Store small diagrams or screenshots beside `index.md` and reference them with a
