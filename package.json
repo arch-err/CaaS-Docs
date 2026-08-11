@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:pages": "CAAS_DOCS_TARGET=github-pages astro build --outDir github-pages-dist",
     "preview": "astro preview",
     "typecheck": "astro check",
     "validate:docs": "bun scripts/validate-docs.ts",

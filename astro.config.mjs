@@ -1,8 +1,13 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+const isGitHubPages = process.env.CAAS_DOCS_TARGET === 'github-pages';
+
 export default defineConfig({
-  site: 'https://caas-docs.local',
+  site: isGitHubPages
+    ? 'https://arch-err.github.io'
+    : 'https://caas-docs.local',
+  base: isGitHubPages ? '/CaaS-Docs-POC' : undefined,
   integrations: [
     starlight({
       title: 'CaaS Docs',

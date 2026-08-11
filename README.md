@@ -21,8 +21,9 @@ The Kubernetes workload never builds the site. It anonymously polls the
 generated `deploy` branch and serves the newest complete checkout. Git is the
 only persistent state.
 
-After CI publishes that branch, a separate workflow deploys the same generated
-files to GitHub Pages.
+The branch also contains a base-path-aware build under `github-pages/`. After CI
+publishes the branch, a separate workflow deploys that directory to GitHub
+Pages.
 
 ## Local development
 
