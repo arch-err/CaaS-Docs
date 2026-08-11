@@ -77,6 +77,8 @@ spec:
           volumeMounts:
             - name: git-data
               mountPath: /git
+            - name: git-sync-tmp
+              mountPath: /tmp
 
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -126,6 +128,9 @@ spec:
         - name: nginx-tmp
           emptyDir:
             sizeLimit: 32Mi
+        - name: git-sync-tmp
+          emptyDir:
+            sizeLimit: 32Mi
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -139,4 +144,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-

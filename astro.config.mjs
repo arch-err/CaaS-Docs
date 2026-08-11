@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
-  site: 'http://caas-docs.local',
+  site: 'https://caas-docs.local',
   integrations: [
     starlight({
       title: 'CaaS Docs',

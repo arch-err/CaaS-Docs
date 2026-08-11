@@ -47,7 +47,7 @@ Pod can synchronize it.
 Add this temporary hostname mapping:
 
 ```text
-127.0.0.1 caas-docs.local
+10.20.21.2 caas-docs.local
 ```
 
 Then create the kind cluster, install ingress-nginx, and deploy the Helm
@@ -56,7 +56,7 @@ release:
 ```console
 nix develop
 just kind-up
-curl http://caas-docs.local
+curl https://caas-docs.local
 ```
 
 Remove the cluster with `just kind-down`.
@@ -75,6 +75,7 @@ scripts/                     Content validation and cluster bootstrap
 ## Deployment behavior
 
 - git-sync polls every two seconds by default.
+- The local kind ingress is published through the existing Traefik instance.
 - Each checkout is published through an atomic symlink switch.
 - nginx does not reload when documentation changes.
 - HTML and Pagefind metadata are revalidated by clients; fingerprinted Astro
