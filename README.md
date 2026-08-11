@@ -12,13 +12,17 @@ main branch
     ├─ GitHub Actions: format check, content validation, typecheck, build
     │
     └─ generated deploy branch
+           ├─ git-sync ──atomic symlink──> nginx
            │
-           └─ git-sync ──atomic symlink──> nginx
+           └─ GitHub Pages deployment
 ```
 
 The Kubernetes workload never builds the site. It anonymously polls the
 generated `deploy` branch and serves the newest complete checkout. Git is the
 only persistent state.
+
+After CI publishes that branch, a separate workflow deploys the same generated
+files to GitHub Pages.
 
 ## Local development
 
@@ -69,7 +73,7 @@ src/components/              Catalog and documentation UI
 deploy/helm/caas-docs/       git-sync and nginx Helm chart
 kind/                        Local cluster configuration
 scripts/                     Content validation and cluster bootstrap
-.github/workflows/           CI and deploy-branch publication
+.github/workflows/           CI, branch publication, and Pages deployment
 ```
 
 ## Deployment behavior
