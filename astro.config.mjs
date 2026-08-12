@@ -5,9 +5,8 @@ const isGitHubPages = process.env.CAAS_DOCS_TARGET === 'github-pages';
 
 export default defineConfig({
   site: isGitHubPages
-    ? 'https://arch-err.github.io'
+    ? 'https://caas-poc.jesber.xyz'
     : 'https://caas-docs.local',
-  base: isGitHubPages ? '/CaaS-Docs-POC' : undefined,
   integrations: [
     starlight({
       title: 'CaaS Docs',
@@ -15,13 +14,13 @@ export default defineConfig({
       favicon: '/favicon.svg',
       lastUpdated: true,
       editLink: {
-        baseUrl: 'https://github.com/arch-err/CaaS-Docs-POC/edit/main/',
+        baseUrl: 'https://github.com/arch-err/CaaS-Docs/edit/main/',
       },
       social: [
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/arch-err/CaaS-Docs-POC',
+          href: 'https://github.com/arch-err/CaaS-Docs',
         },
       ],
       sidebar: [
